@@ -233,6 +233,10 @@ module Sunspot
         @query.tie = tie
       end
 
+      def fuzzy!(value=nil)
+        @query.fuzzy!(value)
+      end
+
       def fields_added? #:nodoc:
         @fields_added
       end

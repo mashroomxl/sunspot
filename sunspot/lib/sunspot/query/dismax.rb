@@ -2,14 +2,15 @@ module Sunspot
   module Query
 
     #
-    # Solr full-text queries use Solr's DisMaxRequestHandler, a search handler
-    # designed to process user-entered phrases, and search for individual
-    # words across a union of several fields.
+    # Solr full-text queries use Solr's ExtendedDisMaxRequestHandler, a search
+    # handler designed to process user-entered phrases, and search for
+    # individual words across a union of several fields.
     #
     class Dismax
       attr_writer :minimum_match, :phrase_slop, :query_phrase_slop, :tie
 
       def initialize(keywords)
+        dismax! # use dismax as default @type
         @keywords = keywords
         @fulltext_fields = {}
         @boost_queries = []
@@ -21,16 +22,23 @@ module Sunspot
         @phrase_slop = nil
         @query_phrase_slop = nil
         @tie = nil
+        @fuzzy = nil
       end
 
       #
       # The query as Solr parameters
       #
       def to_params
-        params = { :q => @keywords }
+        if @fuzzy === true
+          params = { :q => @keywords.to_s.split(/\s+/).join('~ ') + '~' }
+        elsif @fuzzy.is_a?(Float)
+          params = { :q => @keywords.to_s.split(/\s+/).join("~%.1f " % @fuzzy) + ("~%.8f" % @fuzzy) }
+        else
+          params = { :q => @keywords }
+        end
         params[:fl] = '* score'
         params[:qf] = @fulltext_fields.values.map { |field| field.to_boosted_field }.join(' ')
-        params[:defType] = 'dismax'
+        params[:defType] = @type
         if @phrase_fields
           params[:pf] = @phrase_fields.map { |field| field.to_boosted_field }.join(' ')
         end
@@ -71,7 +79,7 @@ module Sunspot
         params.delete :fl
         keywords = params.delete(:q)
         options = params.map { |key, value| escape_param(key, value) }.join(' ')
-        "_query_:\"{!dismax #{options}}#{escape_quotes(keywords)}\""
+        "_query_:\"{!#{@type} #{options}}#{escape_quotes(keywords)}\""
       end
 
       #
@@ -121,6 +129,29 @@ module Sunspot
         @fulltext_fields.has_key?(field.indexed_name)
       end
 
+      def dismax!
+        @type = 'dismax'
+      end
+
+      def edismax!
+        @type = 'edismax'
+      end
+
+      def fuzzy!(value=nil)
+        edismax! # force edismax, it's needed for fuzzy search
+        if value === nil || value === true
+          @fuzzy = true
+        elsif value === false
+          @fuzzy = nil
+        else
+          if value.is_a?(Numeric) # && (0.0..1.0).cover?(value.to_f)
+            @fuzzy = value.to_f
+          else
+            raise ArgumentError.new('similarity value must a numeric between 0.0 and 1.0')
+          end
+        end
+        @fuzzy
+      end
 
       private
       
