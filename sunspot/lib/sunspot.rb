@@ -381,6 +381,20 @@ module Sunspot
       session.more_like_this(object, *types, &block)
     end
 
+    #
+    # TODO write something here
+    #
+    def new_spell_check(keywords)
+      session.new_spell_check(keywords)
+    end
+
+    #
+    # TODO write something here
+    #
+    def spell_check(keywords)
+      session.spell_check(keywords)
+    end
+
     # Remove objects from the index. Any time an object is destroyed, it must
     # be removed from the index; otherwise, the index will contain broken
     # references to objects that do not exist, which will cause errors when

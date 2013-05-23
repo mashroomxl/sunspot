@@ -183,6 +183,15 @@ module Sunspot
         @search_session.new_more_like_this(object, &block)
       end
 
+      def spell_check(keywords)
+        #FIXME should use shards
+        spell_check(keywords).execute
+      end
+
+      def new_spell_check(keywords)
+        @search_session.new_spell_check(keywords)
+      end
+
       # 
       # True if any shard session is dirty. Note that directly using the
       # #commit_if_dirty method is more efficient if that's what you're

@@ -83,6 +83,25 @@ module Sunspot
     end
 
     #
+    # TODO write something here
+    #
+    def new_spell_check(keywords)
+      search = Search::SpellCheck.new(
+        connection,
+        Query::SpellCheck.new(keywords)
+      )
+      search
+    end
+
+    #
+    # TODO write something here
+    #
+    def spell_check(keywords)
+      search = new_spellcheck(keywords)
+      search.execute
+    end
+
+    #
     # See Sunspot.index
     #
     def index(*objects)

@@ -46,6 +46,7 @@ module Sunspot
       delegate :new_search, :search, :config,
                 :new_more_like_this, :more_like_this,
                 :delete_dirty, :delete_dirty?,
+                :new_spell_check, :spell_check,
                 :to => :search_session
 
       def initialize(search_session = Sunspot.session)
