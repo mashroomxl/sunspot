@@ -97,7 +97,7 @@ module Sunspot
     # TODO write something here
     #
     def spell_check(keywords)
-      search = new_spellcheck(keywords)
+      search = new_spell_check(keywords)
       search.execute
     end
 
