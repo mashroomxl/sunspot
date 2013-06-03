@@ -24,6 +24,18 @@ module Sunspot
         self
       end
 
+      # 
+      # TODO write something here
+      #
+      def correctly_spelled?
+        index = results['suggestions'].find_index('correctlySpelled')
+        if index
+          results['suggestions'][index + 1]
+        else
+          nil
+        end
+      end
+
       #
       # see: https://github.com/sunspot/sunspot/pull/43
       #
