@@ -79,7 +79,7 @@ module Sunspot
           if terms.present?
             terms.each do |term|
               if (suggestions[term]||{})['origFreq'] == 0
-                collation[term] = spellcheck_suggestion_for(term)
+                collation[term] = suggestion_for(term)
               end
             end
           end
