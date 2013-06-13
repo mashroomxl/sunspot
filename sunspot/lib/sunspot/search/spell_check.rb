@@ -13,15 +13,18 @@ module Sunspot
       # adds option spellcheck.extendedResults with given value to spellcheck's
       # query options. it takes care of the key type (string / symbole).
       #
-      def extended_results!(value=true)
-        key_str = 'spellcheck.extendedResults'
-        key_sym = key_str.intern
-        if @query.options.has_key?(key_str)
-          @query.options[key_str] = value
-        else
-          @query.options[key_sym] = value
-        end
+      def extended_results!
+        self.extended_results = true
         self
+      end
+
+      def not_extended_results!
+        self.extended_results = false
+        self
+      end
+
+      def extended_results=(value)
+        safe_set_query_option('spellcheck.extendedResults', value)
       end
 
       # 
@@ -55,7 +58,8 @@ module Sunspot
       def suggestions
         if @suggestions.nil?
           @suggestions = {}
-          count = (results['suggestions'].length - 4) / 2
+          length_subtrahend = collation_given? ? 4 : 2
+          count = (results['suggestions'].length - length_subtrahend) / 2
           (0..(count - 1)).each do |i|
             term = results['suggestions'][i * 2]
             suggestion = results['suggestions'][(i * 2) + 1]
@@ -75,7 +79,7 @@ module Sunspot
       
       # Provide a collated query. If the user provides a query string,
       # tokenize it on whitespace and replace terms strictly not present in
-      # the index. Otherwise return Solr's suggested collation.
+      # the index. Otherwise build collation from given suggestions.
       #
       # Solr's suggested collation is more liberal, replacing even terms that
       # are present in the index. This may not be useful if only one term is
@@ -83,28 +87,40 @@ module Sunspot
       #
       # Mix and match in your views for a blend of strict and liberal collations.
       def collation(*terms)
-        if results['suggestions'] && results['suggestions'].length > 2
-          collation = terms.join(" ").dup if terms
-      
-          # If we are given a query string, tokenize it and strictly replace
-          # the terms that aren't present in the index
-          if terms.present?
-            terms.each do |term|
-              if (suggestions[term]||{})['origFreq'] == 0
-                collation[term] = suggestion_for(term)
-              end
+        length_comparator = collation_given? ? 2 : 1
+        if results['suggestions'] && results['suggestions'].length > length_comparator
+          terms = suggestions.keys if terms.length == 0
+          collation = terms.join(" ")
+
+          # tokenize the query string and strictly replace the terms
+          # that aren't present in the index.
+          terms.each do |term|
+            if (suggestions[term]||{})['origFreq'] == 0
+              collation[term] = suggestion_for(term)
             end
           end
-      
-          # If no query was given, or all terms are present in the index,
-          # return Solr's suggested collation.
-          if terms.length == 0
-            collation = results['suggestions'][-1]
-          end
-        
+
           collation
         else
           nil
+        end
+      end
+
+    protected
+
+      def collation_given?
+        results['suggestions'][-2] == 'collation'
+      end
+
+      def safe_set_query_option(key, value)
+        key_str = key.to_s
+        key_sym = key_str.intern
+        if @query.options.has_key?(key_str)
+          @query.options[key_str] = value
+          key_str
+        else
+          @query.options[key_sym] = value
+          key_sym
         end
       end
     end
