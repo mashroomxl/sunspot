@@ -77,25 +77,23 @@ module Sunspot
         end.last['word']
       end
       
-      # Provide a collated query. If the user provides a query string,
-      # tokenize it on whitespace and replace terms strictly not present in
-      # the index. Otherwise build collation from given suggestions.
+      # Build a coallation based on the given keywords from the query and the
+      # received suggestions. Using the start and end offsets to replace the
+      # misspelled words.
       #
-      # Solr's suggested collation is more liberal, replacing even terms that
-      # are present in the index. This may not be useful if only one term is
-      # misspelled and preventing useful results.
-      #
-      # Mix and match in your views for a blend of strict and liberal collations.
-      def collation(*terms)
+      # Give a block to setup the collation variable, e.g to downcase the
+      # keywords before.
+      def collation
         length_comparator = collation_given? ? 2 : 1
         if results['suggestions'] && results['suggestions'].length > length_comparator
-          terms = suggestions.keys if terms.length == 0
-          collation = terms.join(" ")
+          if block_given?
+            collation = yield query.keywords
+          else
+            collation = query.keywords
+          end
 
-          # tokenize the query string and strictly replace the terms
-          # that aren't present in the index.
-          terms.each do |term|
-            if (suggestions[term]||{})['origFreq'] == 0
+          suggestions.each do |term, term_data|
+            if term_data['origFreq'] == 0
               collation[term] = suggestion_for(term)
             end
           end
