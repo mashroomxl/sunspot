@@ -64,6 +64,14 @@ module Sunspot
         Search.new
       end
 
+      def spell_check(*args)
+        SpellCheck.new
+      end
+
+      def new_spell_check(*args)
+        SpellCheck.new
+      end
+
       class Search
         
         def build
@@ -92,8 +100,37 @@ module Sunspot
           self
         end
       end
-      
-      
+
+      class SpellCheck
+        def build
+          self
+        end
+
+        def execute
+          self
+        end
+
+        def correctly_spelled?
+          true
+        end
+
+        def results
+          {}
+        end
+
+        def suggestions
+          {}
+        end
+
+        def suggestion_for(term)
+          term
+        end
+
+        def collation
+          nil
+        end
+      end
+
       class PaginatedCollection < Array
         
         def total_count
