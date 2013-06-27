@@ -61,7 +61,8 @@ module Sunspot
           length_subtrahend = collation_given? ? 4 : 2
           count = (results['suggestions'].length - length_subtrahend) / 2
           (0..(count - 1)).each do |i|
-            term = results['suggestions'][i * 2]
+            escaped_term = results['suggestions'][i * 2]
+            term = unescape_term(escaped_term)
             suggestion = results['suggestions'][(i * 2) + 1]
             @suggestions[term] = suggestion
           end
@@ -120,6 +121,10 @@ module Sunspot
           @query.options[key_sym] = value
           key_sym
         end
+      end
+
+      def unescape_term(term)
+        term.gsub(/\\\:/, ":") # unescape colons
       end
     end
   end

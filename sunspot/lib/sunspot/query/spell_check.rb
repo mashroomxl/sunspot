@@ -9,7 +9,7 @@ module Sunspot
       end
 
       def to_params
-        options_base = { :q => keywords }
+        options_base = { :q => escaped_keywords }
         if options.nil? || options.empty?
           options_base
         else
@@ -19,6 +19,10 @@ module Sunspot
 
       def to_subquery
         raise NotImplementedError.new
+      end
+
+      def escaped_keywords
+        @escaped_escaped_keywords ||= keywords.gsub(/([^\\])\:|\A\:/, "\\1\\:") # escape colons
       end
     end
   end
