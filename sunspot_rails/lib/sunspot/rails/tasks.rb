@@ -16,8 +16,8 @@ namespace :sunspot do
   # $ rake sunspot:reindex[,Post+Author]  # reindex Post and Author model
   # $ rake sunspot:reindex[,,true]        # reindex silencing/skipping the boolean prompt
   task :reindex, [:batch_size, :models, :silence] => [:environment] do |t, args|
-    args.with_defaults(:silence => false)
-    if args[:silence] == false
+    args.with_defaults(:silence => 'false')
+    if args[:silence] != 'true'
       puts "*Note: the reindex task will remove your current indexes and start from scratch."
       puts "If you have a large dataset, reindexing can take a very long time, possibly weeks."
       puts "This is not encouraged if you have anywhere near or over 1 million rows."
@@ -47,7 +47,7 @@ namespace :sunspot do
     sunspot_models = Sunspot.searchable
 
     # Choose a specific subset of models, if requested
-    if args[:models]
+    if !args[:models].blank?
       model_names = args[:models].split('+')
       sunspot_models = model_names.map{ |m| m.constantize }
     end
