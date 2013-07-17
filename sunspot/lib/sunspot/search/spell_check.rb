@@ -95,7 +95,12 @@ module Sunspot
 
           suggestions.each do |term, term_data|
             if term_data['origFreq'] == 0
-              collation[term] = suggestion_for(term)
+              if block_given?
+                term_sub = yield term
+              else
+                term_sub = term
+              end
+              collation.sub! /#{term_sub}/iu, suggestion_for(term)
             end
           end
 
