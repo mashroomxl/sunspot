@@ -129,7 +129,8 @@ module Sunspot
       end
 
       def unescape_term(term)
-        term.gsub(/\\\:/, ":") # unescape colons
+        # unescape colons & unescape quotation mark
+        term.gsub(/\\\:/, ":").gsub(/\\\"/, "\"")
       end
     end
   end

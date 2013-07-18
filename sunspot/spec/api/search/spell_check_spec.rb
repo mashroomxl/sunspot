@@ -5,9 +5,14 @@ describe Sunspot::Search::SpellCheck do
   let(:query_dummy) { Sunspot::Query::SpellCheck.new(nil, nil) }
   let(:subject_dummy) { Sunspot::Search::SpellCheck.new(nil, query_dummy) }
 
-  it 'unescapes suggestions' do
+  it 'unescapes colon in suggestions' do
     subject_dummy.stub(:results).and_return({"suggestions"=>["foo\\:",{},"correctlySpelled",true]})
     subject_dummy.suggestions.should have_key "foo:"
+  end
+
+  it 'unescapes quotation mark in suggestions' do
+    subject_dummy.stub(:results).and_return({"suggestions"=>["foo\\\"",{},"correctlySpelled",true]})
+    subject_dummy.suggestions.should have_key "foo\""
   end
 
   it 'returns collation correctly with Umlauten' do

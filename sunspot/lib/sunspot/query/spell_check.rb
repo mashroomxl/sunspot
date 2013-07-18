@@ -22,7 +22,8 @@ module Sunspot
       end
 
       def escaped_keywords
-        @escaped_escaped_keywords ||= keywords.gsub(/([^\\])\:|\A\:/, "\\1\\:") # escape colons
+        # escape colons & escape quotation mark
+        @escaped_escaped_keywords ||= keywords.gsub(/([^\\])\:|\A\:/, "\\1\\:").gsub(/([^\\])\"|\A\"/, "\\1\\\"")
       end
     end
   end
