@@ -22,8 +22,7 @@ module Sunspot
       end
 
       def escaped_keywords
-        # escape colons & escape quotation mark
-        @escaped_escaped_keywords ||= keywords.gsub(/([^\\])\:|\A\:/, "\\1\\:").gsub(/([^\\])\"|\A\"/, "\\1\\\"")
+        @escaped_escaped_keywords ||= Sunspot::DismaxEscaper.escape_keywords(keywords)
       end
     end
   end
