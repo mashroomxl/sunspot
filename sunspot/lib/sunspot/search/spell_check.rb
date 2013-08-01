@@ -31,7 +31,9 @@ module Sunspot
       # TODO write something here
       #
       def correctly_spelled?
-        index = results['suggestions'].find_index('correctlySpelled')
+        if results.include?('suggestions')
+          index = results['suggestions'].find_index('correctlySpelled')
+        end
         if index
           results['suggestions'][index + 1]
         else
