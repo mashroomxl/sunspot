@@ -129,8 +129,12 @@ module Sunspot
       end
 
       def unescape_term(term)
-        # unescape colons & unescape quotation mark
-        term.gsub(/\\\:/, ":").gsub(/\\\"/, "\"")
+        unescape_term = term.dup
+        unescape_term.gsub!(/\\\:/, ":") # unescape colons
+        unescape_term.gsub!(/\\\"/, "\"") # unescape quotation mark
+        unescape_term.gsub!(/\A\\\*/, "*") # unescape leading asterisk
+        unescape_term.gsub!(/\A\\\?/, "?") # unescape leading question mark
+        unescape_term
       end
     end
   end
