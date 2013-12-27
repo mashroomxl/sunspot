@@ -1,6 +1,6 @@
 module Sunspot
   module Search
-    # 
+    #
     # TODO write something here
     #
     class SpellCheck < AbstractSearch
@@ -27,11 +27,13 @@ module Sunspot
         safe_set_query_option('spellcheck.extendedResults', value)
       end
 
-      # 
+      #
       # TODO write something here
       #
       def correctly_spelled?
-        index = results['suggestions'].find_index('correctlySpelled')
+        if results.include?('suggestions')
+          index = results['suggestions'].find_index('correctlySpelled')
+        end
         if index
           results['suggestions'][index + 1]
         else
@@ -49,7 +51,7 @@ module Sunspot
       def results
         @results ||= @solr_result['spellcheck'] || {}
       end
-      
+
       # Reformat the oddly-formatted spellcheck suggestion array into a
       # more useful hash.
       #
@@ -69,7 +71,7 @@ module Sunspot
         end
         @suggestions
       end
-      
+
       # Return the suggestion with the single highest frequency.
       # Requires the extended results format.
       def suggestion_for(term)
@@ -77,7 +79,7 @@ module Sunspot
           suggestion['freq']
         end.last['word']
       end
-      
+
       # Build a coallation based on the given keywords from the query and the
       # received suggestions. Using the start and end offsets to replace the
       # misspelled words.
@@ -129,12 +131,7 @@ module Sunspot
       end
 
       def unescape_term(term)
-        unescape_term = term.dup
-        unescape_term.gsub!(/\\\:/, ":") # unescape colons
-        unescape_term.gsub!(/\\\"/, "\"") # unescape quotation mark
-        unescape_term.gsub!(/\A\\\*/, "*") # unescape leading asterisk
-        unescape_term.gsub!(/\A\\\?/, "?") # unescape leading question mark
-        unescape_term
+        Sunspot::DismaxEscaper.unescape_term(term)
       end
     end
   end

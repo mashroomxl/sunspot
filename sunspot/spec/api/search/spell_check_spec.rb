@@ -5,6 +5,13 @@ describe Sunspot::Search::SpellCheck do
   let(:query_dummy) { Sunspot::Query::SpellCheck.new(nil, nil) }
   let(:subject_dummy) { Sunspot::Search::SpellCheck.new(nil, query_dummy) }
 
+  it 'uses DismaxEscaper to unescape terms in suggestions' do
+    Sunspot::DismaxEscaper.should_receive(:unescape_term).with("\\*foo\\[bar\\]").and_call_original
+
+    subject_dummy.stub(:results).and_return({"suggestions"=>["\\*foo\\[bar\\]",{},"correctlySpelled",true]})
+    subject_dummy.suggestions
+  end
+
   it 'unescapes leading asterisk' do
     subject_dummy.stub(:results).and_return({"suggestions"=>["\\*foo*",{},"correctlySpelled",true]})
     subject_dummy.suggestions.should have_key "*foo*"

@@ -22,14 +22,7 @@ module Sunspot
       end
 
       def escaped_keywords
-        if @escaped_escaped_keywords.nil?
-          @escaped_escaped_keywords = keywords.dup
-          @escaped_escaped_keywords.gsub!(/([^\\])\:|\A\:/, "\\1\\:") # escape colons
-          @escaped_escaped_keywords.gsub!(/([^\\])\"|\A\"/, "\\1\\\"") # escape quotation mark
-          @escaped_escaped_keywords.gsub!(/\A\*/, "\\\*") # escape leading asterisk
-          @escaped_escaped_keywords.gsub!(/\A\?/, "\\\?") # escape leading question mark
-        end
-        @escaped_escaped_keywords
+        @escaped_escaped_keywords ||= Sunspot::DismaxEscaper.escape_keywords(keywords)
       end
     end
   end

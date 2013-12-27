@@ -2,6 +2,7 @@
    date_facet range_facet facet_row hit highlight field_group group hit_enumerable spell_check).each do |file|
   require File.join(File.dirname(__FILE__), 'search', file)
 end
+require File.join(File.dirname(__FILE__), 'dismax_escaper')
 
 module Sunspot
   module Search
